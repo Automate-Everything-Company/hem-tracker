@@ -1,10 +1,12 @@
+import logging
 import re
 from datetime import timedelta
 from pathlib import Path
 from typing import List
+
 import requests
 
-from fastapi import FastAPI, Depends, HTTPException, Form, APIRouter, Body
+from fastapi import FastAPI, Depends, HTTPException, Form, APIRouter
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.staticfiles import StaticFiles
@@ -26,12 +28,17 @@ from .auth import create_access_token, verify_token
 from .calculations import calculate_decay_constant, calculate_halving_time
 from .schemas import UserSignup
 from .dependencies import get_db, oauth2_scheme
+from .logging_config import setup_logging
+from .dependencies import get_db, oauth2_scheme
 from ..email_utils import send_reset_email
 
 STATIC_PATH = Path(__file__).parents[1] / 'static'
 TEMPLATES_PATH = Path(__file__).parents[1] / 'templates'
 
+setup_logging()
+
 app = FastAPI(title="Hemophilia Tracker", version="0.0.1")
+logger = logging.getLogger("hem_tracker")
 
 app.include_router(api_router)
 
@@ -61,8 +68,16 @@ async def http_exception_handler(request: Request, exc: HTTPException):
 
 @app.post("/login", response_model=schemas.Token)
 def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    db_user = crud.get_user_by_username(db, username=form_data.username)
+    username = form_data.username
+    logger.debug(f"User attempt for username: {username}")
+    db_user = crud.get_user_by_username(db, username=username)
+
     if db_user is None or not crud.verify_password(form_data.password, db_user.password):
+        logger.warning(f"Failed login attempt: {username} not found.")
+        raise HTTPException(status_code=400, detail="Invalid username or password")
+
+    if not crud.verify_password(form_data.password, db_user.password):
+        logger.warning(f"Failed login attempt: invalid password for username {form_data.username}")
         raise HTTPException(status_code=400, detail="Invalid username or password")
 
     access_token_expires = timedelta(minutes=30)

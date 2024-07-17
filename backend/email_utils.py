@@ -14,7 +14,7 @@ def send_reset_email(email: str, token: str):
 
     api_key = SMTP2GO_KEY
 
-    reset_link = f"https://hem-tracker/reset-password/{token}"^
+    reset_link = f"https://hem-tracker/reset-password/{token}"
 
     email_content = f"""
     <html>

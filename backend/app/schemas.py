@@ -107,3 +107,12 @@ class Token(BaseModel):
 class ContactForm(BaseModel):
     email: Optional[str] = None
     message: Optional[str] = None
+
+
+class PasswordResetRequest(BaseModel):
+    identifier: Optional[str] = None
+
+
+class PasswordReset(BaseModel):
+    token: str
+    new_password: str

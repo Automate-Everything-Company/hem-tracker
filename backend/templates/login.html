@@ -1,12 +1,11 @@
 {% extends "layout.html" %}
-
 {% block content %}
 <div class="container mx-auto py-8 px-4">
     <h2 class="text-2xl font-bold mb-4">User Login</h2>
     <form id="loginForm" action="/login" method="post">
         <div class="mb-4">
             <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
-            <input type="text" id="username" name="username" required
+            <input type="text" id="username" name="username" autocomplete="username" required
                    class="bg-blue-100 text-blue-800 text-sm font-semibold mr-2 px-2.5 py-0.5 rounded">
         </div>
         <div class="mb-4">
@@ -16,9 +15,28 @@
         </div>
         <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">Login</button>
     </form>
+
+    <div class="mt-4">
+        <a href="#" id="forgotPasswordLink" class="text-blue-500 hover:text-blue-600">Forgot Password?</a>
+    </div>
+
+    <div id="resetPasswordRequestForm" class="mt-4 hidden">
+        <h3 class="text-xl font-bold mb-2">Reset Password</h3>
+        <form id="passwordResetRequestForm">
+            <div class="mb-4">
+                <label for="resetIdentifier" class="block text-sm font-medium text-gray-700">Email or Username</label>
+                <input type="text" id="resetIdentifier" name="resetIdentifier" required
+                       class="bg-blue-100 text-blue-800 text-sm font-semibold mr-2 px-2.5 py-0.5 rounded">
+            </div>
+            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">Request Password
+                Reset
+            </button>
+        </form>
+    </div>
 </div>
 
 <script src="/static/js/login.js"></script>
 <script src="/static/js/auth.js"></script>
-
+<script src="/static/js/password_reset_request.js"></script>
+</script>
 {% endblock %}

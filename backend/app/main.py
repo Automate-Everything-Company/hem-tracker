@@ -1,3 +1,4 @@
+import re
 from datetime import timedelta
 from pathlib import Path
 from typing import List
@@ -17,12 +18,15 @@ from sqlalchemy.orm import Session
 
 from passlib.context import CryptContext
 
+import secrets
+
 from .api.router import router as api_router
 from . import models, schemas, crud
-from .auth import ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token, verify_token
+from .auth import create_access_token, verify_token
 from .calculations import calculate_decay_constant, calculate_halving_time
 from .schemas import UserSignup
-from .dependencies import get_db, get_current_user, oauth2_scheme
+from .dependencies import get_db, oauth2_scheme
+from ..email_utils import send_reset_email
 
 STATIC_PATH = Path(__file__).parents[1] / 'static'
 TEMPLATES_PATH = Path(__file__).parents[1] / 'templates'
@@ -94,6 +98,47 @@ def signup(user: UserSignup, db: Session = Depends(get_db)):
         return {"detail": "Signup successful"}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.post("/request-password-reset")
+def request_password_reset(request: schemas.PasswordResetRequest, db: Session = Depends(get_db)):
+    identifier = request.identifier
+
+    if "@" in identifier:
+        user = crud.get_user_by_email(db, email=identifier)
+    else:
+        user = crud.get_user_by_username(db, username=identifier)
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    reset_token = secrets.token_urlsafe(32)
+
+    crud.save_reset_token(db, user.id, reset_token)
+
+    send_reset_email(user.email, reset_token)
+
+    return {"detail": "Password reset instructions sent to your email"}
+
+
+@app.get("/reset-password/{token}")
+async def reset_password_page(request: Request, token: str, db: Session = Depends(get_db)):
+    user = crud.get_user_by_reset_token(db, token)
+    if not user:
+        raise HTTPException(status_code=400, detail="Invalid or expired reset token")
+    return templates.TemplateResponse("reset_password.html", {"request": request, "token": token})
+
+
+@app.post("/reset-password")
+def reset_password(request: schemas.PasswordReset, db: Session = Depends(get_db)):
+    user = crud.get_user_by_reset_token(db, request.token)
+    if not user:
+        raise HTTPException(status_code=400, detail="Invalid or expired reset token")
+
+    crud.update_user_password(db, user.id, request.new_password)
+    crud.delete_reset_token(db, request.token)
+
+    return {"detail": "Password reset successful"}
 
 
 @app.delete("/users/")

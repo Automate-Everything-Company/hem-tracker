@@ -160,3 +160,32 @@ def update_user(db: Session, db_user: models.User, user_update: schemas.UserUpda
     db.commit()
     db.refresh(db_user)
     return db_user
+
+
+def save_reset_token(db: Session, user_id: int, reset_token: str):
+    db_token = models.PasswordResetToken(user_id=user_id, token=reset_token)
+    db.add(db_token)
+    db.commit()
+    db.refresh(db_token)
+    return db_token
+
+
+def get_user_by_reset_token(db: Session, token: str):
+    db_token = db.query(models.PasswordResetToken).filter(models.PasswordResetToken.token == token).first()
+    if db_token:
+        return db.query(models.User).filter(models.User.id == db_token.user_id).first()
+    return None
+
+
+def update_user_password(db: Session, user_id: int, new_password: str):
+    hashed_password = pwd_context.hash(new_password)
+    db_user = db.query(models.User).filter(models.User.id == user_id).first()
+    db_user.password = hashed_password
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+
+def delete_reset_token(db: Session, token: str):
+    db.query(models.PasswordResetToken).filter(models.PasswordResetToken.token == token).delete()
+    db.commit()

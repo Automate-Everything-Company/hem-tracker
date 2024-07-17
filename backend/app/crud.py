@@ -1,3 +1,4 @@
+import logging
 from typing import Union, List
 
 import numpy as np
@@ -7,6 +8,8 @@ from passlib.context import CryptContext
 
 from . import models, schemas
 from .calculations import calculate_decay_constant
+
+logger = logging.getLogger("hem_tracker")
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -62,11 +65,15 @@ def get_user_by_email(db: Session, email: str):
 
 
 def delete_user_and_measurements_by_username(db: Session, username: str):
+    logger.debug(f"Attempt to delete user and measurements: {username}")
     db_user = db.query(models.User).filter(models.User.username == username).first()
     if db_user:
+        logger.debug(f"User found in db: {username}")
         delete_user_measurements(db, db_user)
+        delete_user_password_tokens(db, db_user)
         db.delete(db_user)
         db.commit()
+        logger.debug(f"Deleted user and all measurements: {username}")
         return True
     return False
 
@@ -77,7 +84,12 @@ def delete_user_measurements(db: Session, db_user: models.User):
         db.delete(measurement)
 
 
+def delete_user_password_tokens(db: Session, db_user: models.User):
+    db.query(models.PasswordResetToken).filter(models.PasswordResetToken.user_id == db_user.id).delete()
+
+
 def delete_user_by_email(db: Session, email: str):
+    logger.debug
     db_user = db.query(models.User).filter(models.User.email == email).first()
     if db_user:
         db.delete(db_user)

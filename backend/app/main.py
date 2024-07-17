@@ -1,10 +1,12 @@
 import logging
 import re
+import traceback
 from datetime import timedelta
 from pathlib import Path
 from typing import List
 
 import requests
+import sqlalchemy
 
 from fastapi import FastAPI, Depends, HTTPException, Form, APIRouter
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -118,6 +120,7 @@ def signup(user: UserSignup, db: Session = Depends(get_db)):
 @app.post("/request-password-reset")
 def request_password_reset(request: schemas.PasswordResetRequest, db: Session = Depends(get_db)):
     identifier = request.identifier
+    logger.debug(f"User attempt for password reset: {identifier}")
 
     if "@" in identifier:
         user = crud.get_user_by_email(db, email=identifier)
@@ -131,6 +134,7 @@ def request_password_reset(request: schemas.PasswordResetRequest, db: Session = 
 
     crud.save_reset_token(db, user.id, reset_token)
 
+    logger.debug(f"Attempt to send link to user email: {user.email}")
     send_reset_email(user.email, reset_token)
 
     return {"detail": "Password reset instructions sent to your email"}
@@ -199,36 +203,56 @@ async def get_user_data(username: str, db: Session = Depends(get_db)):
 
 @app.get("/users/{username}/measurements/", response_model=List[schemas.Measurement])
 def read_measurements(username: str, db: Session = Depends(get_db)):
+    logger.debug(f"Attempt to read user measurement for user: {username}")
     db_user = db.query(models.User).filter(models.User.username == username).first()
     if db_user is None:
+        logger.debug(f"User not found: {username}")
         raise HTTPException(status_code=404, detail="User not found")
     return db_user.measurements
 
 
 @router.post("/users/{username}/measurements/", response_model=schemas.MeasurementCreate)
 def create_measurement(username: str, measurement: schemas.MeasurementCreate, db: Session = Depends(get_db)):
+    logger.debug(f"Attempt to create measurement for user: {username}")
     db_user = db.query(models.User).filter(models.User.username == username).first()
     if db_user is None:
+        logger.debug(f"User not found: {username}")
         raise HTTPException(status_code=404, detail="User not found")
 
     decay_constant = calculate_decay_constant(peak_level=measurement.peak_level,
                                               measured_level=measurement.second_level_measurement,
                                               time_elapsed=measurement.time_elapsed)
+    logger.debug(f"Calculate decay constant for measurement for user {username}: {decay_constant}")
     halving_time = calculate_halving_time(decay_constant=decay_constant)
+    logger.debug(f"Calculate halving time for measurement for user {username}: {halving_time}")
 
-    db_measurement = models.Measurement(
-        user_id=db_user.id,
-        peak_level=measurement.peak_level,
-        time_elapsed=measurement.time_elapsed,
-        second_level_measurement=measurement.second_level_measurement,
-        decay_constant=decay_constant,
-        halving_time=halving_time,
-        comment=measurement.comment
-    )
-    db.add(db_measurement)
-    db.commit()
-    db.refresh(db_measurement)
-    return db_measurement
+    try:
+        db_measurement = models.Measurement(
+            user_id=db_user.id,
+            peak_level=measurement.peak_level,
+            time_elapsed=measurement.time_elapsed,
+            second_level_measurement=measurement.second_level_measurement,
+            decay_constant=decay_constant,
+            halving_time=halving_time,
+            comment=measurement.comment
+        )
+        db.add(db_measurement)
+        db.commit()
+        db.refresh(db_measurement)
+        return db_measurement
+
+    except sqlalchemy.exc.IntegrityError as e:
+        db.rollback()
+        logger.debug(f"Integrity error: {e}")
+    except sqlalchemy.exc.OperationalError as e:
+        db.rollback()
+        logger.debug(f"Operational error: {e}")
+    except AttributeError as e:
+        logger.debug(f"Attribute error: {e}")
+    except Exception as e:
+        db.rollback()
+        logger.debug(f"Unexpected error: {e}")
+        logger.debug(f"Traceback: {traceback.format_exc()}")
 
 
 @app.post("/users/{username}/measurements", include_in_schema=False)

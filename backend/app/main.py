@@ -39,8 +39,9 @@ TEMPLATES_PATH = Path(__file__).parents[1] / 'templates'
 
 setup_logging()
 
-app = FastAPI(title="Hemophilia Tracker", version="0.0.1")
 logger = logging.getLogger("hem_tracker")
+
+app = FastAPI(title="Hemophilia Tracker", version="0.0.1")
 
 app.include_router(api_router)
 
@@ -162,8 +163,10 @@ def reset_password(request: schemas.PasswordReset, db: Session = Depends(get_db)
 
 @app.delete("/users/")
 def delete_user_by_email(email: str, db: Session = Depends(get_db)):
+    logger.debug(f"Attempt to delete user: {email}")
     success = crud.delete_user_by_email(db, email)
     if not success:
+        logger.debug(f"User not found: {email}")
         raise HTTPException(status_code=404, detail="User not found")
     return {"detail": "User deleted"}
 
@@ -179,8 +182,10 @@ def update_user(username: str, user: schemas.UserUpdate, db: Session = Depends(g
 
 @app.delete("/users/{username}", response_class=JSONResponse)
 def delete_user_by_username(username: str, db: Session = Depends(get_db)):
+    logger.debug(f"Attempt to delete user: {username}")
     success = crud.delete_user_and_measurements_by_username(db, username)
     if not success:
+        logger.debug(f"User not found: {username}")
         raise HTTPException(status_code=404, detail="User not found")
     return JSONResponse(content={"detail": "User deleted"})
 

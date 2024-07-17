@@ -1,8 +1,11 @@
+import logging
 import os
 
 import requests
 import json
 from dotenv import load_dotenv
+
+logger = logging.getLogger("hem_tracker")
 
 load_dotenv()
 
@@ -15,6 +18,7 @@ def send_reset_email(email: str, token: str):
     api_key = SMTP2GO_KEY
 
     reset_link = f"https://hem-tracker/reset-password/{token}"
+    logger.debug(f"Send link to email {email}: {reset_link}")
 
     email_content = f"""
     <html>
@@ -45,10 +49,10 @@ def send_reset_email(email: str, token: str):
 
         result = response.json()
         if result.get("data", {}).get("succeeded", 0) > 0:
-            print(f"Password reset email sent successfully to {email}")
+            logger.debug(f"Password reset email sent successfully to {email}")
         else:
-            print(f"Failed to send password reset email to {email}")
-            print(f"Error: {result.get('error', 'Unknown error')}")
+            logger.debug(f"Failed to send password reset email to {email}")
+            logger.debug(f"Error: {result.get('error', 'Unknown error')}")
 
     except requests.exceptions.RequestException as e:
         print(f"An error occurred while sending the password reset email: {str(e)}")

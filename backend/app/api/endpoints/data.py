@@ -192,7 +192,6 @@ async def get_factor_levels(settings: FactorLevelSettings) -> dict:
         "current_factor_level": [current_hour, current_factor_level],
         "halving_time": halving_time
     }
-    logger.debug(f"Return result hours: {week_hours}")
     logger.debug(f"Return result start of week: {start_of_week.isoformat()}")
     logger.debug(f"Return result current time: {current_time.isoformat()}")
     logger.debug(f"Return result current factor level: {[current_hour, current_factor_level]}")

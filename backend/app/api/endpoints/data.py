@@ -166,7 +166,6 @@ async def get_factor_levels(settings: FactorLevelSettings) -> dict:
     logger.debug(f"Start of the week: {start_of_week}")
     decay_constant = settings.decay_constant
     halving_time = calculate_halving_time(decay_constant=decay_constant)
-    logger.debug(f"Halving time: {halving_time}")
 
     refill_hours = generate_refill_hours(settings.refill_times, start_of_week)
     logger.debug(f"Refill hours: {refill_hours}")
@@ -181,13 +180,10 @@ async def get_factor_levels(settings: FactorLevelSettings) -> dict:
     )
     logger.debug(f"Level params: {level_params}")
     levels = calculate_levels(week_hours=week_hours, params=level_params)
-    logger.debug(f"Levels: {levels}")
     current_time = convert_to_datetime(settings.current_level)
-    logger.debug(f"current_time: {current_time}")
     current_hour = (current_time - start_of_week).total_seconds() / 3600
     current_hour = float(f"{current_hour:.1f}")
     current_factor_level = levels[week_hours.index(current_hour)]
-    logger.debug(f"current_factor_level: {current_factor_level}")
     result = {
         "hours": week_hours,
         "start_of_week": start_of_week.isoformat(),
@@ -196,7 +192,11 @@ async def get_factor_levels(settings: FactorLevelSettings) -> dict:
         "current_factor_level": [current_hour, current_factor_level],
         "halving_time": halving_time
     }
-    logger.debug(f"Return result: {result}")
+    logger.debug(f"Return result hours: {week_hours}")
+    logger.debug(f"Return result start of week: {start_of_week.isoformat()}")
+    logger.debug(f"Return result current time: {current_time.isoformat()}")
+    logger.debug(f"Return result current factor level: {[current_hour, current_factor_level]}")
+    logger.debug(f"Return result halving time: {[halving_time]}")
     return result
 
 

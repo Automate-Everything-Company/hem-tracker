@@ -19,10 +19,6 @@ from ...schemas import DefaultValues, DecayConstantParameters
 
 CET = pytz.timezone('Europe/Berlin')
 
-NOW = datetime.now(CET)
-CURRENT_YEAR = NOW.year
-CURRENT_MONTH = NOW.month
-
 app = FastAPI()
 
 
@@ -51,17 +47,20 @@ router = APIRouter()
 
 
 def convert_to_datetime(date_str):
+    now = datetime.now(CET)
+    current_year = now.year
+    current_month = now.month
     time_part = ' '.join(date_str.split()[1:])  # Gets "10:05 AM"
     datetime_obj = datetime.strptime(time_part, '%I:%M %p')
-    datetime_obj = datetime_obj.replace(year=CURRENT_YEAR, month=CURRENT_MONTH)
+    datetime_obj = datetime_obj.replace(year=current_year, month=current_month)
 
     weekday_str = date_str.split()[0]  # Gets "Monday"
     weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
     target_weekday = weekdays.index(weekday_str)
-    current_weekday = NOW.weekday()
+    current_weekday = now.weekday()
 
     days_difference = target_weekday - current_weekday
-    correct_date = NOW + timedelta(days=days_difference)
+    correct_date = now + timedelta(days=days_difference)
 
     final_datetime = datetime_obj.replace(day=correct_date.day)
 
@@ -93,12 +92,15 @@ def generate_refill_times_in_datetime_format(refill_times, start_of_week):
 
 
 def parse_refill_time(time_str: str, start_of_week: datetime) -> datetime:
+    now = datetime.now(CET)
+    current_year = now.year
+    current_month = now.month
     weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
     day_part, *time_part = time_str.split()
     day_of_week = weekdays.index(day_part)
     time_part = " ".join(time_part)
     time_obj = datetime.strptime(time_part, "%I:%M %p")
-    time_obj = time_obj.replace(year=CURRENT_YEAR, month=CURRENT_MONTH)
+    time_obj = time_obj.replace(year=current_year, month=current_month)
     day_datetime = start_of_week + timedelta(days=day_of_week)
     return day_datetime.replace(hour=time_obj.hour, minute=time_obj.minute)
 

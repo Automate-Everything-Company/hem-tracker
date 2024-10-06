@@ -217,7 +217,7 @@ async def get_factor_levels(measurement: DecayConstantParameters) -> dict:
 
 @router.get("/default-values", response_model=DefaultValues)
 async def get_default_values(db: Session = Depends(get_db)):
-    username = "stefanjosan"
+    username = "stefanjosan_altuvoct"
     measurement_id = 0
 
     db_user = crud.get_user_by_username(db, username)

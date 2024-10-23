@@ -4,10 +4,10 @@ from typing import Dict
 from sqlalchemy.orm import Session
 from fastapi import APIRouter, HTTPException, Depends
 
+from backend.src.common.utils import calculate_decay_constant
 from backend.src.database.dependencies import get_db
 from backend.src.levels.schemas import FactorLevelSettings, DefaultValues, FactorLevels, DecayConstantParameters
 from backend.src.levels.service import calculate_factor_levels, get_values_for_default_user
-from backend.src.levels.utils import calculate_decay_constant
 
 router = APIRouter(
     prefix="/api/levels",

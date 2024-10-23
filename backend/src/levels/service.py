@@ -10,9 +10,9 @@ from .utils import (
     get_start_of_the_week,
     create_week_hours,
     convert_to_datetime,
-    calculate_halving_time,
-    generate_refill_hours, calculate_decay_constant
+    generate_refill_hours
 )
+from ..common.utils import calculate_decay_constant, calculate_halving_time
 from ..database import crud
 from ..database.dependencies import get_db
 
@@ -112,7 +112,7 @@ async def get_values_for_default_user(db: Session = Depends(get_db)) -> DefaultV
     measurement_id = 0
 
     user = crud.get_user(db, username)
-    measurement = crud.get_measurement_values(db=db, user_id=user.id, measurement_id=measurement_id)
+    measurement = crud.get_user_measurement(db=db, user_id=user.id, measurement_id=measurement_id)
     weekly_infusions = get_refill_times(db, username)
     if measurement:
         decay_constant = calculate_decay_constant(peak_level=measurement.peak_level,

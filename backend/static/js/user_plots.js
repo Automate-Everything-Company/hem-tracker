@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function fetchUserDataForPlot(username) {
-    fetch(`/api/users/user-data/${username}`)
+    fetch(`/user-data/${username}`)
        .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
@@ -30,15 +30,14 @@ function updateFactorLevels(data) {
     const currentTime = localTime.toLocaleString('en-US', {
         weekday: 'long', hour: '2-digit', minute: '2-digit', hour12: true
     });
-
     const decayConstant = data.decayConstant;
     const peakLevel = data.peakLevel;
-    const weeklyInfusions = data.weeklyInfusions;
+    const refillTimes = data.refillTimes;
 
-    fetch('/api/levels/update-levels', {
+    fetch('api/levels/update-levels', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ decayConstant, peakLevel, weeklyInfusions, currentTime })
+        body: JSON.stringify({ decayConstant, peakLevel, refillTimes, currentTime })
     })
     .then(response => response.json())
     .then(data => {

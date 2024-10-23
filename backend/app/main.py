@@ -24,6 +24,7 @@ from passlib.context import CryptContext
 
 import secrets
 
+from ..src.levels.router import router as levels
 from .api.router import router as api_router
 from . import models, schemas, crud
 from .auth import create_access_token, verify_token
@@ -44,6 +45,7 @@ logger = logging.getLogger("hem_tracker")
 app = FastAPI(title="Hemophilia Tracker", version="0.0.1")
 
 app.include_router(api_router)
+app.include_router(levels)
 
 app.mount("/static", StaticFiles(directory=str(STATIC_PATH)), name="static")
 app.add_middleware(

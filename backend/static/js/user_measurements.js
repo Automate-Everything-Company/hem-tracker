@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 function fetchMeasurements() {
     const username = document.getElementById('username').value;
-    fetchWithToken(`/users/${username}/measurements/`)
+    fetchWithToken(`/api/users/${username}/measurements/`)
         .then(response => response.json())
         .then(data => {
             const measurementsList = document.getElementById('measurementsList');
@@ -60,7 +60,7 @@ function submitMeasurementForm(event) {
         comment: document.getElementById('measurement_comment').value
     };
 
-    fetchWithToken(`/users/${username}/measurements/`, {
+    fetchWithToken(`/api/users/${username}/measurements/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

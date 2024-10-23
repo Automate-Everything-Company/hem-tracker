@@ -79,14 +79,14 @@
         updateDateList();
     }
 
-    function getRefillTimes() {
+    function getWeeklyInfusions() {
         return dateSelectionDates;
     }
 
     window.dateSelection = {
         addDateTime,
         setInitialDates,
-        getRefillTimes,
+        getWeeklyInfusions,
         removeDate,
         formatDateTime,
         getDates: function() { return dateSelectionDates; },

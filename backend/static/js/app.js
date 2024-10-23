@@ -24,14 +24,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
 async function fetchDefaultValues() {
     try {
-        const response = await fetch('data/default-values');
+        const response = await fetch('/api/levels/default-values');
         const data = await response.json();
         document.getElementById('peak_level').value = data.peak_level;
         document.getElementById('time_elapsed').value = data.time_elapsed;
         document.getElementById('second_level_measurement').value = data.second_level_measurement;
         decayConstant = data.decay_constant;
         peakLevel = data.peak_level;
-        dateSelection.setInitialDates(data.refill_times);
+        dateSelection.setInitialDates(data.weekly_infusions);
         updateFactorLevels();
     } catch (error) {
         console.error('Error fetching default data:', error);
@@ -39,7 +39,7 @@ async function fetchDefaultValues() {
 }
 
 async function updateFactorLevels() {
-    const refillTimes = dateSelection.getRefillTimes();
+    const weeklyInfusions = dateSelection.getWeeklyInfusions();
 
     const localTime = new Date();
     const currentTime = localTime.toLocaleString('en-US', {
@@ -51,19 +51,23 @@ async function updateFactorLevels() {
     secondLevelMeasurement = parseFloat(document.getElementById('second_level_measurement').value);
 
     try {
-        const decayResponse = await fetch('data/calculate-decay-constant', {
+        const decayResponse = await fetch('/api/levels/calculate-decay-constant', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ peakLevel, timeElapsed, secondLevelMeasurement })
         });
 
+
+        if (!decayResponse.ok) {
+            throw new Error(`HTTP error while calculating decay constant! status: ${decayResponse.status}`);
+        }
         const decayData = await decayResponse.json();
         const decayConstant = decayData.decay_constant;
 
-        const updateResponse = await fetch('data/update-factor-levels', {
+        const updateResponse = await fetch('/api/levels/update-levels', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ decayConstant, peakLevel, refillTimes, currentTime })
+            body: JSON.stringify({ decayConstant, peakLevel, weeklyInfusions, currentTime })
         });
 
         const updateData = await updateResponse.json();

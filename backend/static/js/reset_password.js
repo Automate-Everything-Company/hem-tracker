@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            fetch('/reset-password', {
+            fetch('/api/password/reset-password', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

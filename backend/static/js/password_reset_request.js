@@ -15,24 +15,31 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             const resetIdentifier = document.getElementById('resetIdentifier').value;
 
-            fetch('/request-password-reset', {
+            fetch('/api/password/request-reset', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ identifier: resetIdentifier }),
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.detail) {
-                    alert(data.detail);
+                .then(response => {
+                if (!response.ok) {
+                    return response.json().then(errData => {
+                        throw new Error(errData.message || 'An error occurred. Please try again.');
+                    });
+                }
+                return response.json();
+            })
+                .then(data => {
+                if (data.message) {
+                    alert(data.message);
                 } else {
-                    alert('An error occurred. Please try again.');
+                    alert('Password reset instructions have been sent to your email.');
                 }
             })
-            .catch((error) => {
+                .catch((error) => {
                 console.error('Error:', error);
-                alert('An error occurred. Please try again.');
+                alert(error.message || 'An error occurred. Please try again.');
             });
         });
     }

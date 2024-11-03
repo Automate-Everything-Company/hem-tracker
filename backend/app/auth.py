@@ -1,5 +1,7 @@
 import os
 from datetime import datetime, timedelta
+from typing import Dict, Any
+
 from dotenv import load_dotenv
 
 from fastapi import Depends, HTTPException, status, APIRouter, Form
@@ -43,7 +45,8 @@ def verify_token(token: str):
 
 
 @router.post("/token", response_model=schemas.Token)
-def login_for_access_token(db: Session = Depends(get_db), username: str = Form(...), password: str = Form(...)):
+def login_for_access_token(db: Session = Depends(get_db), username: str = Form(...), password: str = Form(...)) -> Dict[
+    str, Any]:
     user = crud.get_user_by_username(db, username=username)
     if not user or not pwd_context.verify(password, user.password):
         raise HTTPException(

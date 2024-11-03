@@ -15,7 +15,7 @@ function submitSignupForm(event) {
         weekly_infusions: getSignupRefillTimes()
     };
 
-    fetch('/signup', {
+    fetch('/auth/signup', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

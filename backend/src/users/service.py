@@ -8,12 +8,13 @@ from sqlalchemy.orm import Session
 from . import domain
 from . import schemas
 from . import crud
-from .schemas import UserSignup, UserUpdate, UserDelete, UserPlotData, UserDataResponse, UserMeasurements
+from .schemas import UserSignup, UserUpdate, UserDelete, UserPlotData, UserDataResponse
 from ..common.exceptions import DatabaseError, UserNotFoundException, UserAlreadyExistsError
+from ..common.utils import calculate_decay_constant
 from ..database.crud import update_user_by_username, get_user_by_username, delete_user_measurements, \
-    delete_user_password_tokens, get_measurement_values
+    delete_user_password_tokens, get_user_measurement
 from ..database.models import Measurement
-from ..levels.utils import calculate_decay_constant
+from ..measurement.schemas import UserMeasurements
 from ...app.logging_config import setup_logging
 
 setup_logging()
@@ -126,7 +127,7 @@ def get_user_plot_data(db: Session, username: str) -> UserPlotData:
                 status_code=404,
                 detail=f"User with username {username} not found"
             )
-        measurements = get_measurement_values(db=db, user_id=user.id)
+        measurements = get_user_measurement(db=db, user_id=user.id)
         decay_constants = [calculate_decay_constant(measurement.peak_level, measurement.second_level_measurement,
                                                     measurement.time_elapsed) for measurement in
                            measurements]
@@ -160,7 +161,7 @@ def get_user_measurements(db: Session, username: str) -> list[UserMeasurements]:
                 status_code=404,
                 detail=f"User with username {username} not found"
             )
-        measurements = get_measurement_values(db=db, user_id=user.id)
+        measurements = get_user_measurement(db=db, user_id=user.id)
 
         return [UserMeasurements.from_orm(measurement) for measurement in measurements]
 

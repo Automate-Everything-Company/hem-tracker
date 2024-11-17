@@ -1,50 +1,7 @@
 from pydantic import BaseModel, Field, EmailStr, constr, conlist
 from typing import Optional, List
 
-
-class MeasurementBase(BaseModel):
-    id: int = Field(..., description="Measurement id")
-    user_id: int = Field(..., description="User id for the measurement")
-    peak_level: float = Field(..., description="Peak factor level")
-    time_elapsed: float = Field(..., description="Elapsed time until second measurement")
-    second_level_measurement: float = Field(..., description="Factor level after second measurement")
-    decay_constant: float = Field(..., description="Factor decay constant")
-    halving_time: float = Field(..., description="Factor halving time")
-    comment: Optional[str] = Field(None, description="User comment")
-
-    class Config:
-        from_attributes = True
-
-
-class UserMeasurements(MeasurementBase):
-    id: int = Field(..., description="Measurement id")
-    peak_level: float = Field(..., description="Peak factor level")
-    time_elapsed: float = Field(..., description="Elapsed time until second measurement")
-    second_level_measurement: float = Field(..., description="Factor level after second measurement")
-    halving_time: float = Field(..., description="Factor halving time")
-    comment: Optional[str] = Field(None, description="User comment")
-
-
-class Measurement(MeasurementBase):
-    id: int
-    user_id: int
-
-    class Config:
-        from_attributes = True
-
-
-class MeasurementResponse(BaseModel):
-    id: int = Field(..., description="Measurement ID")
-    user_id: int = Field(..., description="User id")
-    peak_level: float = Field(..., description="Peak factor level")
-    time_elapsed: float = Field(..., description="Elapsed time until second measurement")
-    second_level_measurement: float = Field(..., description="Factor level after second measurement")
-    decay_constant: float = Field(..., description="Factor decay constant")
-    halving_time: float = Field(..., description="Factor halving time")
-    comment: Optional[str] = Field(None, description="User comment")
-
-    class Config:
-        from_attributes = True
+from backend.src.measurement.schemas import MeasurementResponse
 
 
 class UserBase(BaseModel):

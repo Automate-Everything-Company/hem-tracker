@@ -11,7 +11,7 @@
     });
 
     function fetchUserData(username) {
-        fetchWithToken(`/users/${username}/data`)
+        fetchWithToken(`/api/users/${username}/data`)
             .then(checkResponseStatus)
             .then(response => response.json())
             .then(setUserData)
@@ -33,13 +33,15 @@
         document.getElementById('first_name').value = data.first_name;
         document.getElementById('last_name').value = data.last_name;
         document.getElementById('peak_level').value = data.peak_level;
-        dateSelection.setInitialDates(data.weekly_infusions.split(', '));
+//        dateSelection.setInitialDates(data.weekly_infusions.split(', '));  // todo: replace with list
+        dateSelection.setInitialDates(data.weekly_infusions);
         toggleRemoveButtons();
         hideInputElements();
     }
 
     function saveUserData() {
         const userData = {
+            username:  document.getElementById('username').value,
             email: document.getElementById('email').value,
             first_name: document.getElementById('first_name').value,
             last_name: document.getElementById('last_name').value,
@@ -47,7 +49,7 @@
             weekly_infusions: dateSelection.getRefillTimes()
         };
 
-        fetchWithToken(`/users/${document.getElementById('username').value}`, {
+        fetchWithToken(`/api/users/`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(userData)
@@ -160,6 +162,6 @@
     };
 
     window.getSignupRefillTimes = function() {
-        return dateSelection.getRefillTimes();
+        return dateSelection.getWeeklyInfusions();
     };
 })();

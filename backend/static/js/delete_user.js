@@ -2,7 +2,7 @@ function deleteUser() {
     const username = document.getElementById('username').value;
 
     if (confirm(`Are you sure you want to delete the user ${username}? This action cannot be undone.`)) {
-        fetchWithToken(`/users/${username}`, {
+        fetchWithToken(`/api/users/${username}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',

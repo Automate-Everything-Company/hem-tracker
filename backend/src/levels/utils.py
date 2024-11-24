@@ -79,10 +79,3 @@ def create_week_hours(hours_in_a_week):
     week_hours = week_hours.tolist()
     return week_hours
 
-
-def calculate_decay_constant(peak_level: float, measured_level: float, time_elapsed: float) -> float:
-    return float((np.log(measured_level) - np.log(peak_level)) / time_elapsed)
-
-
-def calculate_halving_time(decay_constant: float) -> float:
-    return float(f"{abs(np.log(2) / decay_constant):.1f}")

@@ -60,7 +60,7 @@ function submitMeasurementForm(event) {
         comment: document.getElementById('measurement_comment').value
     };
 
-    fetchWithToken(`/api/users/${username}/measurements/`, {
+    fetchWithToken(`/api/measurement/${username}/measurements/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

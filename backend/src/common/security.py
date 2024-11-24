@@ -5,9 +5,9 @@ from typing import Dict
 from passlib.context import CryptContext
 from jose import jwt
 
-SECRET_KEY = os.getenv("SECRET_KEY")
+from backend.src.core.config import ALGORITHM
 
-ALGORITHM = "HS256"
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 

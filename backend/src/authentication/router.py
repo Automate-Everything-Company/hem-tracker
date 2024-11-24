@@ -45,8 +45,8 @@ def login(
     except Exception as exc:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Internal server error during login"
-        ) from exc
+            detail="Internal server error during login. Check if password is correct."
+        ) from exc  # todo: add this return for exception to show the user in the frontend
 
 
 @router.post(

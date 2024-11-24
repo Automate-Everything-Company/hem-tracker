@@ -24,17 +24,18 @@ LOGGING_CONFIG = {
             "class": "logging.FileHandler",
             "filename": LOG_FILE,
             "formatter": "default",
-            "level": "DEBUG",
+            "level": "INFO",
         },
     },
     "loggers": {
         "hem_tracker": {
-            "level": "DEBUG",
+            "level": "INFO",
             "handlers": ["file"],  # Note the use of a list here
             "propagate": False,
         },
     },
 }
+
 
 def setup_logging():
     logging.config.dictConfig(LOGGING_CONFIG)

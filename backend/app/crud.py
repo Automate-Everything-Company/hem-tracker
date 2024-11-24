@@ -3,11 +3,13 @@ from typing import Union, List
 
 import numpy as np
 from fastapi import HTTPException
+from sqlalchemy import literal
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 
 from . import models, schemas
 from .calculations import calculate_decay_constant
+from ..src.common.exceptions import InvalidTokenException
 
 logger = logging.getLogger("hem_tracker")
 
@@ -18,15 +20,15 @@ def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
 
-def get_user_by_username(db: Session, username: str):
+def get_user_by_username(db: Session, username: str):  # todo: delete
     return db.query(models.User).filter(models.User.username == username).first()
 
 
-def verify_password(plain_password: str, hashed_password: str) -> bool:
+def is_password_valid(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
 
-def create_user(db: Session, user: schemas.UserCreate):
+def create_user(db: Session, user: schemas.UserCreate):  # todo: delete
     hashed_password = pwd_context.hash(user.password)
     db_user = models.User(
         first_name=user.first_name,
@@ -60,7 +62,7 @@ def get_user_default_values(db: Session, username: str) -> Union[schemas.UserSig
     return None
 
 
-def get_user_by_email(db: Session, email: str):
+def get_user_by_email(db: Session, email: str):  # todo: delete
     return db.query(models.User).filter(models.User.email == email).first()
 
 
@@ -85,11 +87,10 @@ def delete_user_measurements(db: Session, db_user: models.User):
 
 
 def delete_user_password_tokens(db: Session, db_user: models.User):
-    db.query(models.PasswordResetToken).filter(models.PasswordResetToken.user_id == db_user.id).delete()
+    db.query(models.PasswordResetToken).filter(models.PasswordResetToken.user_id == literal(db_user.id)).delete()
 
 
 def delete_user_by_email(db: Session, email: str):
-    logger.debug
     db_user = db.query(models.User).filter(models.User.email == email).first()
     if db_user:
         db.delete(db_user)
@@ -102,7 +103,7 @@ def get_user_plot_data(db: Session, username: str) -> Union[None, schemas.UserPl
     db_user = get_user_by_username(db, username)
 
     if db_user:
-        measurements = db.query(models.Measurement).filter(models.Measurement.user_id == db_user.id).all()
+        measurements = db.query(models.Measurement).filter(models.Measurement.user_id == literal(db_user.id)).all()
         if not measurements:
             raise HTTPException(status_code=404, detail="No measurements found for this user.")
 
@@ -183,10 +184,12 @@ def save_reset_token(db: Session, user_id: int, reset_token: str):
 
 
 def get_user_by_reset_token(db: Session, token: str):
+    logger.debug(f"Validating reset token: {token}")
     db_token = db.query(models.PasswordResetToken).filter(models.PasswordResetToken.token == token).first()
-    if db_token:
-        return db.query(models.User).filter(models.User.id == db_token.user_id).first()
-    return None
+    if not db_token:
+        logger.error("Token not found.")
+        raise InvalidTokenException("Invalid token")
+    return db.query(models.User).filter(models.User.id == literal(db_token.user_id)).first()
 
 
 def update_user_password(db: Session, user_id: int, new_password: str):

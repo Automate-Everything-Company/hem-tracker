@@ -25,6 +25,12 @@ from passlib.context import CryptContext
 import secrets
 
 from ..src.levels.router import router as levels
+from ..src.users.router import router as users
+from ..src.measurement.router import router as measurement
+from ..src.authentication.router import router as authentication
+from ..src.password_reset.router import router as password
+
+
 from .api.router import router as api_router
 from . import models, schemas, crud
 from .auth import create_access_token, verify_token
@@ -46,6 +52,10 @@ app = FastAPI(title="Hemophilia Tracker", version="0.0.1")
 
 app.include_router(api_router)
 app.include_router(levels)
+app.include_router(users)
+app.include_router(measurement)
+app.include_router(authentication)
+app.include_router(password)
 
 app.mount("/static", StaticFiles(directory=str(STATIC_PATH)), name="static")
 app.add_middleware(
@@ -70,77 +80,28 @@ async def http_exception_handler(request: Request, exc: HTTPException):
         content={"detail": exc.detail},
     )
 
-
-@app.post("/login", response_model=schemas.Token)
-def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    username = form_data.username
-    logger.debug(f"User attempt for username: {username}")
-    db_user = crud.get_user_by_username(db, username=username)
-
-    if db_user is None or not crud.verify_password(form_data.password, db_user.password):
-        logger.warning(f"Failed login attempt: {username} not found.")
-        raise HTTPException(status_code=400, detail="Invalid username or password")
-
-    if not crud.verify_password(form_data.password, db_user.password):
-        logger.warning(f"Failed login attempt: invalid password for username {form_data.username}")
-        raise HTTPException(status_code=400, detail="Invalid username or password")
-
-    access_token_expires = timedelta(minutes=30)
-    access_token = create_access_token(
-        data={"sub": db_user.username},
-        expires_delta=access_token_expires
-    )
-    return {"access_token": access_token, "token_type": "bearer"}
-
-
-@app.post("/signup")
-def signup(user: UserSignup, db: Session = Depends(get_db)):
-    try:
-        db_user = crud.get_user_by_username(db, username=user.username)
-        if db_user:
-            raise HTTPException(status_code=400, detail="Username already registered")
-        if user.email:
-            db_user = crud.get_user_by_email(db, email=user.email)
-            if db_user:
-                raise HTTPException(status_code=400, detail="Email already registered")
-
-        user.weekly_infusions = ", ".join(user.weekly_infusions)
-        new_user = schemas.UserCreate(
-            username=user.username,
-            password=user.password,
-            email=user.email,
-            first_name=user.first_name,
-            last_name=user.last_name,
-            peak_level=user.peak_level,
-            weekly_infusions=user.weekly_infusions,
-        )
-        crud.create_user(db=db, user=new_user)
-        return {"detail": "Signup successful"}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
-
-@app.post("/request-password-reset")
-def request_password_reset(request: schemas.PasswordResetRequest, db: Session = Depends(get_db)):
-    identifier = request.identifier
-    logger.debug(f"User attempt for password reset: {identifier}")
-
-    if "@" in identifier:
-        user = crud.get_user_by_email(db, email=identifier)
-    else:
-        user = crud.get_user_by_username(db, username=identifier)
-
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    reset_token = secrets.token_urlsafe(32)
-
-    crud.save_reset_token(db, user.id, reset_token)
-
-    logger.debug(f"Attempt to send link to user email: {user.email}")
-    send_reset_email(user.email, reset_token)
-
-    return {"detail": "Password reset instructions sent to your email"}
+#
+# @app.post("/request-password-reset")  # todo: delete
+# def request_password_reset(request: schemas.PasswordResetRequest, db: Session = Depends(get_db)):
+#     identifier = request.identifier
+#     logger.debug(f"User attempt for password reset: {identifier}")
+#
+#     if "@" in identifier:
+#         user = crud.get_user_by_email(db, email=identifier)
+#     else:
+#         user = crud.get_user_by_username(db, username=identifier)
+#
+#     if not user:
+#         raise HTTPException(status_code=404, detail="User not found")
+#
+#     reset_token = secrets.token_urlsafe(32)
+#
+#     crud.save_reset_token(db, user.id, reset_token)
+#
+#     logger.debug(f"Attempt to send link to user email: {user.email}")
+#     send_reset_email(user.email, reset_token)
+#
+#     return {"detail": "Password reset instructions sent to your email"}
 
 
 @app.get("/reset-password/{token}")
@@ -247,7 +208,6 @@ def create_measurement(username: str, measurement: schemas.MeasurementCreate, db
         db.commit()
         db.refresh(db_measurement)
         return db_measurement
-
     except sqlalchemy.exc.IntegrityError as e:
         db.rollback()
         logger.debug(f"Integrity error: {e}")
@@ -260,6 +220,8 @@ def create_measurement(username: str, measurement: schemas.MeasurementCreate, db
         db.rollback()
         logger.debug(f"Unexpected error: {e}")
         logger.debug(f"Traceback: {traceback.format_exc()}")
+
+
 
 
 @app.post("/users/{username}/measurements", include_in_schema=False)

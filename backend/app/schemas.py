@@ -66,12 +66,12 @@ class MeasurementBase(BaseModel):
 
 
 class MeasurementCreate(MeasurementBase):
-    peak_level: Optional[float] = None
-    time_elapsed: Optional[float] = None
-    second_level_measurement: Optional[float] = None
-    halving_time: Optional[float] = None
-    decay_constant: Optional[float] = None
-    comment: Optional[str] = None
+    peak_level: float = Field(..., description="Peak factor level")
+    time_elapsed: float = Field(..., description="Elapsed time until second measurement")
+    second_level_measurement: float = Field(..., description="Factor level after second measurement")
+    halving_time: float = Field(..., description="Factor halving time")
+    decay_constant: float = Field(..., description="Factor decay constant")
+    comment: Optional[str] = Field(None, description="User comment")
 
 
 class Measurement(MeasurementBase):

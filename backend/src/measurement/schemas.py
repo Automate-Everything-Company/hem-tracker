@@ -63,6 +63,11 @@ class MeasurementCreate(BaseModel):
     comment: Optional[str] = Field(None, description="User comment")
 
 
+class MeasurementDelete(BaseModel):
+    id: int = Field(..., description="Measurement id")
+    user_id: int = Field(..., description="User id for the measurement")
+
+
 class MeasurementRequest(BaseModel):
     peak_level: float = Field(..., description="Peak factor level")
     time_elapsed: float = Field(..., description="Elapsed time until second measurement")

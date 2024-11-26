@@ -1,13 +1,15 @@
 import logging
 
-from fastapi import HTTPException
+from fastapi import HTTPException, Depends
 from sqlalchemy.orm import Session
 
 from backend.app.logging_config import setup_logging
 from backend.src.common.utils import calculate_decay_constant, calculate_halving_time
-from backend.src.database.crud import get_user_by_username
-from backend.src.measurement.crud import save_measurement
-from backend.src.measurement.schemas import MeasurementCreate, MeasurementResponse, MeasurementRequest
+from backend.src.database.crud import get_user_by_username, get_user_measurement
+from backend.src.database.dependencies import get_db
+from backend.src.measurement.crud import save_measurement, delete, get_measurement
+from backend.src.measurement.schemas import MeasurementCreate, MeasurementResponse, MeasurementRequest, \
+    MeasurementDelete
 
 setup_logging()
 
@@ -42,3 +44,9 @@ def create_user_measurement(db: Session, username: str, measurement: Measurement
     )
     save_measurement(db=db, measurement=new_measurement)
     return new_measurement
+
+
+def delete_measurement(measurement_id: int, db: Session = Depends(get_db)) -> MeasurementDelete:
+    measurement = get_measurement(db=db, measurement_id=measurement_id)
+    deleted_measurement = delete(db=db, db_measurement=measurement)
+    return deleted_measurement

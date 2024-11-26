@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 function fetchMeasurements() {
     const username = document.getElementById('username').value;
-    fetchWithToken(`/api/users/${username}/measurements/`)
+    fetchWithToken(`/api/measurement/${username}/measurements/`)
         .then(response => response.json())
         .then(data => {
             const measurementsList = document.getElementById('measurementsList');
@@ -83,7 +83,7 @@ function submitMeasurementForm(event) {
 
 function deleteMeasurement(id) {
     const username = document.getElementById('username').value;
-    fetchWithToken(`/users/${username}/measurements/${id}`, {
+    fetchWithToken(`/api/measurement/${username}/measurements/${id}`, {
         method: 'DELETE'
     })
     .then(() => fetchMeasurements())

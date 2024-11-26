@@ -64,7 +64,7 @@ def update_user_by_username(db: Session, user_update: UserUpdate) -> UserBase:
         logger.error(f"Error occured while updating info for user {user_update.username} because: {str(exc)}")
 
 
-def get_measurement_values(db: Session, user_id: int, measurement_id: Optional[int] = None) -> Type[Measurement] | list[
+def get_user_measurement(db: Session, user_id: int, measurement_id: Optional[int] = None) -> Type[Measurement] | list[
     Type[Measurement]]:
     measurements = db.query(Measurement).filter(Measurement.user_id == user_id).all()
     if not measurements:

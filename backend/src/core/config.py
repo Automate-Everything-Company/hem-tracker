@@ -18,5 +18,5 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 SMTP2GO_KEY = os.getenv("SMTP2GO_KEY")
 SMTP2GO_URL = "https://api.smtp2go.com/v3/email/send"
 
-TEMPLATES_PATH = Path(__file__).parent.parent.parent / 'templates'
+TEMPLATES_PATH = Path(__file__).parent.parent / 'templates'
 TEMPLATES = Jinja2Templates(directory=str(TEMPLATES_PATH))

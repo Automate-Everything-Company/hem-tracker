@@ -1,7 +1,5 @@
 import logging
-import re
 import traceback
-from datetime import timedelta
 from pathlib import Path
 from typing import List
 
@@ -22,27 +20,24 @@ from sqlalchemy.orm import Session
 
 from passlib.context import CryptContext
 
-import secrets
+from backend.src.levels.router import router as levels
+from backend.src.users.router import router as users
+from backend.src.measurement.router import router as measurement
+from backend.src.authentication.router import router as authentication
+from backend.src.password_reset.router import router as password
+from backend.src.frontend.router import router as frontend
 
-from ..src.levels.router import router as levels
-from ..src.users.router import router as users
-from ..src.measurement.router import router as measurement
-from ..src.authentication.router import router as authentication
-from ..src.password_reset.router import router as password
+
+from backend.app.api.router import router as api_router
+from backend.app import models, schemas, crud
+from backend.app.auth import verify_token
+from backend.app.calculations import calculate_decay_constant, calculate_halving_time
+from backend.app.logging_config import setup_logging
+from backend.app.dependencies import get_db, oauth2_scheme
 
 
-from .api.router import router as api_router
-from . import models, schemas, crud
-from .auth import create_access_token, verify_token
-from .calculations import calculate_decay_constant, calculate_halving_time
-from .schemas import UserSignup
-from .dependencies import get_db, oauth2_scheme
-from .logging_config import setup_logging
-from .dependencies import get_db, oauth2_scheme
-from ..email_utils import send_reset_email
-
-STATIC_PATH = Path(__file__).parents[1] / 'static'
-TEMPLATES_PATH = Path(__file__).parents[1] / 'templates'
+STATIC_PATH = Path(__file__).parent / 'static'
+TEMPLATES_PATH = Path(__file__).parent / 'templates'
 
 setup_logging()
 
@@ -56,8 +51,10 @@ app.include_router(users)
 app.include_router(measurement)
 app.include_router(authentication)
 app.include_router(password)
+app.include_router(frontend)
 
 app.mount("/static", StaticFiles(directory=str(STATIC_PATH)), name="static")
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # For development, you might use '*'; specify domains in production
@@ -68,17 +65,8 @@ app.add_middleware(
 
 router = APIRouter()
 
-templates = Jinja2Templates(directory=str(TEMPLATES_PATH))
-
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-
-@app.exception_handler(HTTPException)
-async def http_exception_handler(request: Request, exc: HTTPException):
-    return JSONResponse(
-        status_code=exc.status_code,
-        content={"detail": exc.detail},
-    )
 
 #
 # @app.post("/request-password-reset")  # todo: delete
@@ -278,35 +266,6 @@ async def submit_contact_form(
         return JSONResponse(content={"status": "error", "message": "A request error occurred. Please try again."})
 
 
-@app.get("/", response_class=HTMLResponse)
-def read_root(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
-
-
-@app.get("/about", response_class=HTMLResponse)
-def show_about(request: Request):
-    return templates.TemplateResponse("about.html", {"request": request})
-
-
-@app.get("/disclaimer", response_class=HTMLResponse)
-def show_disclaimer(request: Request):
-    return templates.TemplateResponse("disclaimer.html", {"request": request})
-
-
-@app.get("/login", response_class=HTMLResponse)
-def get_login_form(request: Request):
-    return templates.TemplateResponse("login.html", {"request": request})
-
-
-@app.get("/signup", response_class=HTMLResponse)
-def get_signup_form(request: Request):
-    return templates.TemplateResponse("signup.html", {"request": request})
-
-
-@app.get("/contact", response_class=HTMLResponse)
-def show_contact_form(request: Request):
-    return templates.TemplateResponse("contact.html", {"request": request})
-
 
 @app.get("/users/")
 def read_user(email: str, request: Request, db: Session = Depends(get_db)):
@@ -316,18 +275,6 @@ def read_user(email: str, request: Request, db: Session = Depends(get_db)):
     return templates.TemplateResponse("user.html", {"request": request, "user": db_user})
 
 
-@app.get("/user/{username}", response_class=HTMLResponse)
-def read_user_page(username: str, request: Request, token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
-    payload = verify_token(token)
-    if username != payload.get("sub"):
-        raise HTTPException(status_code=403, detail="Not authorized to access this user's data")
-    db_user = crud.get_user_by_username(db, username=username)
-    if db_user is None:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    # Render the template to a string
-    html_content = templates.TemplateResponse("user.html", {"request": request, "user": db_user}).body.decode('utf-8')
-    return HTMLResponse(content=html_content)
 
 
 app.include_router(router)

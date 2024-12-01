@@ -1,5 +1,5 @@
 function redirectToUserPage(username) {
-    fetchWithToken(`/user/${username}`)
+    fetchWithToken(`/api/users/${username}`)
         .then(response => {
             if (response.ok) {
                 return response.text();
@@ -15,7 +15,7 @@ function redirectToUserPage(username) {
             document.write(newDoc.documentElement.outerHTML);
             document.close();
 
-            history.pushState(null, '', `/user/${username}`);
+            history.pushState(null, '', `/api/users/${username}`);
 
             initializePage();
         })

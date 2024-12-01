@@ -35,7 +35,7 @@ function updateFactorLevels(data) {
     const peakLevel = data.peakLevel;
     const weeklyInfusions = data.weeklyInfusions;
 
-    fetch('api/levels/update-levels', {
+    fetch('/api/levels/update-levels', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ decayConstant, peakLevel, weeklyInfusions, currentTime })

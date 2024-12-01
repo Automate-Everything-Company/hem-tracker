@@ -33,8 +33,8 @@
         document.getElementById('first_name').value = data.first_name;
         document.getElementById('last_name').value = data.last_name;
         document.getElementById('peak_level').value = data.peak_level;
-//        dateSelection.setInitialDates(data.weekly_infusions.split(', '));  // todo: replace with list
-        dateSelection.setInitialDates(data.weekly_infusions);
+        dateSelection.setInitialDates(data.weekly_infusions.split(', '));  // todo: replace with list
+        //dateSelection.setInitialDates(data.weekly_infusions);
         toggleRemoveButtons();
         hideInputElements();
     }

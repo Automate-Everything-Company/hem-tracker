@@ -70,7 +70,7 @@ def user_plot_data(username: str, db: Session = Depends(get_db)):
     return user_data
 
 
-@router.get("/user/{username}", response_class=HTMLResponse)
+@router.get("/{username}", response_class=HTMLResponse)
 def read_user_page(username: str, request: Request, token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     payload = verify_token(token)
     if username != payload.get("sub"):

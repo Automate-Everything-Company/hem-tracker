@@ -17,7 +17,7 @@ class UserBase(BaseModel):
     email: Optional[EmailStr] = Field(
         None, description="User's email address"
     )
-    weekly_infusions: conlist(str, min_length=1, max_length=20) = Field(
+    weekly_infusions: str = Field(
         None,
         description="List of weekly infusion times. Do not expect to exceed 5, a maximum of 20 defined."
     )
@@ -66,7 +66,7 @@ class UserUpdate(UserBase):
     )
 
     email: Optional[EmailStr] = None
-    weekly_infusions: Optional[List[str]] = None
+    weekly_infusions: Optional[str] = None
     peak_level: Optional[float] = Field(None, description="Peak factor level")
 
 

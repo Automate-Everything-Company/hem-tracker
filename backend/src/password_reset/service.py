@@ -1,14 +1,12 @@
 import logging
 import secrets
 
-from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from backend.app.logging_config import setup_logging
+from backend.src.common.logging_config import setup_logging
 from backend.src.common.exceptions import UserNotFoundException, EmailSendingFailedException
 from backend.src.database.crud import get_user_by_email, get_user_by_username, save_reset_token
-from backend.src.database.dependencies import get_db
-from backend.src.password_reset.schemas import PasswordResetRequest, PasswordResetResult
+from backend.src.password_reset.schemas import PasswordResetResult
 from backend.src.password_reset.utils import send_reset_email
 
 setup_logging()

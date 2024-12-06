@@ -4,7 +4,7 @@ from typing import Dict
 
 import requests
 
-from backend.app.logging_config import setup_logging
+from backend.src.common.logging_config import setup_logging
 from backend.src.core.config import SMTP2GO_KEY, SMTP2GO_URL
 
 setup_logging()

@@ -1,5 +1,4 @@
 import logging
-from typing import Type
 
 import numpy as np
 from fastapi import HTTPException
@@ -13,9 +12,8 @@ from ..common.exceptions import DatabaseError, UserNotFoundException, UserAlread
 from ..common.utils import calculate_decay_constant
 from ..database.crud import update_user_by_username, get_user_by_username, delete_user_measurements, \
     delete_user_password_tokens, get_user_measurement
-from ..database.models import Measurement
 from ..measurement.schemas import UserMeasurements
-from ...app.logging_config import setup_logging
+from backend.src.common.logging_config import setup_logging
 
 setup_logging()
 

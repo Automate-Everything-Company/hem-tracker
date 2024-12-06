@@ -6,12 +6,12 @@ from sqlalchemy.orm import Session
 from starlette import status
 from jose import jwt, JWTError
 
-from backend.app.crud import is_password_valid
 from backend.constants.constants import HOUR_IN_SECONDS, ACCESS_TOKEN_EXPIRE_MINUTES
 from backend.src.authentication.schemas import Token
-from backend.src.common.security import create_access_token
+from backend.src.common.security import create_access_token, pwd_context, is_password_valid
 from backend.src.core.config import SECRET_KEY, ALGORITHM
 from backend.src.database.crud import get_user_by_username
+
 
 
 def create_user_access_token(db: Session, username: str, password: str) -> Token:

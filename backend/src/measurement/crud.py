@@ -6,7 +6,7 @@ import sqlalchemy
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from backend.app.logging_config import setup_logging
+from backend.src.common.logging_config import setup_logging
 from backend.src.database.models import Measurement
 from backend.src.measurement.schemas import MeasurementCreate, MeasurementDelete
 

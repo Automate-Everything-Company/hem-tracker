@@ -3,12 +3,12 @@ import logging
 from fastapi import HTTPException, Depends
 from sqlalchemy.orm import Session
 
-from backend.app.logging_config import setup_logging
+from backend.src.common.logging_config import setup_logging
 from backend.src.common.utils import calculate_decay_constant, calculate_halving_time
-from backend.src.database.crud import get_user_by_username, get_user_measurement
+from backend.src.database.crud import get_user_by_username
 from backend.src.database.dependencies import get_db
 from backend.src.measurement.crud import save_measurement, delete, get_measurement
-from backend.src.measurement.schemas import MeasurementCreate, MeasurementResponse, MeasurementRequest, \
+from backend.src.measurement.schemas import MeasurementCreate, MeasurementRequest, \
     MeasurementDelete
 
 setup_logging()

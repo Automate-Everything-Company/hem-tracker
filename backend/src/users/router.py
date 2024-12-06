@@ -15,7 +15,7 @@ from ..common.exceptions import UserNotFoundException
 from ..core.config import TEMPLATES
 from ..database.crud import get_user_by_username
 from ..database.dependencies import get_db
-from ...app.logging_config import setup_logging
+from backend.src.common.logging_config import setup_logging
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 

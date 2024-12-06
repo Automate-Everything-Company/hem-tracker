@@ -4,11 +4,11 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from starlette.responses import RedirectResponse
 
-from .schemas import MeasurementCreate, MeasurementResponse, MeasurementRequest, UserMeasurements, MeasurementDelete
+from .schemas import MeasurementCreate, MeasurementRequest, UserMeasurements, MeasurementDelete
 from .service import create_user_measurement, delete_measurement
 from ..database.dependencies import get_db
 from ..users.service import get_user_measurements
-from ...app.logging_config import setup_logging
+from backend.src.common.logging_config import setup_logging
 
 setup_logging()
 

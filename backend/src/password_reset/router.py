@@ -10,7 +10,7 @@ from .service import request_password_reset
 from ..common.exceptions import UserNotFoundException, InvalidTokenException, EmailSendingFailedException
 from ..core.config import TEMPLATES
 from ...app.crud import get_user_by_reset_token
-from ...app.logging_config import setup_logging
+from backend.src.common.logging_config import setup_logging
 
 from backend.src.database.dependencies import get_db
 from backend.src.password_reset.schemas import PasswordResetRequest, PasswordResetResponse

@@ -6,9 +6,9 @@ from pydantic import ValidationError
 from sqlalchemy.orm import Session
 from starlette import status
 
-from backend.app.logging_config import setup_logging
+from backend.src.common.logging_config import setup_logging
 from backend.app.schemas import Token
-from backend.src.authentication.domain import create_user_access_token, AuthService
+from backend.src.authentication.domain import create_user_access_token
 from backend.src.database.dependencies import get_db
 from backend.src.users.schemas import UserSignup, SignupResponse
 from backend.src.users.service import signup_new_user

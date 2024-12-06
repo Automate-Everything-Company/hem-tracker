@@ -1,12 +1,11 @@
 import logging
-from typing import Type, Any, Optional, List
+from typing import Type, Optional
 
 from fastapi import HTTPException
 from sqlalchemy import literal
 from sqlalchemy.orm import Session
 
-from backend.app.logging_config import setup_logging
-from backend.src.common.exceptions import UserNotFoundException
+from backend.src.common.logging_config import setup_logging
 from backend.src.database.models import Measurement, User, PasswordResetToken
 from backend.src.users.schemas import UserUpdate, UserBase
 

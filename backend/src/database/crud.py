@@ -15,7 +15,7 @@ setup_logging()
 logger = logging.getLogger("hem_tracker")
 
 
-def get_user(db: Session, username: str) -> Any:
+def get_user(db: Session, username: str) -> Optional[User]:
     user = db.query(User).filter(User.username == username).first()
     if not user:
         raise HTTPException(status_code=404, detail="No user found.")

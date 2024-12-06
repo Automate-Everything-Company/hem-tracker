@@ -13,7 +13,7 @@ from .utils import (
     generate_refill_hours
 )
 from ..common.utils import calculate_decay_constant, calculate_halving_time
-from ..database import crud
+from ..database.crud import get_user, get_user_measurement
 from ..database.dependencies import get_db
 
 
@@ -107,12 +107,12 @@ def calculate_levels(week_hours: List[float], params: FactorCalculationParameter
     return levels
 
 
-async def get_values_for_default_user(db: Session = Depends(get_db)) -> DefaultValues:
+def get_values_for_default_user(db: Session = Depends(get_db)) -> DefaultValues:
     username = "stefanjosan"
     measurement_id = 0
 
-    user = crud.get_user(db, username)
-    measurement = crud.get_user_measurement(db=db, user_id=user.id, measurement_id=measurement_id)
+    user = get_user(db, username)
+    measurement = get_user_measurement(db=db, user_id=user.id, measurement_id=measurement_id)
     weekly_infusions = get_refill_times(db, username)
     if measurement:
         decay_constant = calculate_decay_constant(peak_level=measurement.peak_level,
@@ -128,7 +128,7 @@ async def get_values_for_default_user(db: Session = Depends(get_db)) -> DefaultV
 
 
 def get_refill_times(db: Session, username: str) -> List[str]:
-    user = crud.get_user(db, username)
+    user = get_user(db, username)
     if not user or not user.weekly_infusions:
         return []
     return user.weekly_infusions.split(", ")

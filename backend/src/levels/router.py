@@ -45,9 +45,9 @@ def get_factor_levels(settings: FactorLevelSettings) -> Dict[str, str]:
         500: {"description": "Server error"},
     },
 )
-async def get_default_values(db: Session = Depends(get_db)) -> DefaultValues:
+def get_default_values(db: Session = Depends(get_db)) -> DefaultValues:
     try:
-        default_values = await get_values_for_default_user(db)
+        default_values = get_values_for_default_user(db)
         return default_values
     except ValueError as exc:
         raise HTTPException(status_code=403, detail=str(exc))

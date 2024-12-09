@@ -19,11 +19,7 @@ router = APIRouter(
 @router.post(
     "/update-levels",
     response_model=FactorLevels,
-    responses={
-        403: {"description": "Operation forbidden"},
-        500: {"description": "Could not compute. Server error."}
-    },
-
+    responses={403: {"description": "Operation forbidden"}, 500: {"description": "Could not compute. Server error."}},
 )
 def get_factor_levels(settings: FactorLevelSettings) -> Dict[str, str]:
     try:
@@ -57,10 +53,12 @@ def get_default_values(db: Session = Depends(get_db)) -> DefaultValues:
 
 
 @router.post("/calculate-decay-constant", response_model=dict)
-def get_factor_levels(measurement: DecayConstantParameters) -> dict:
-    decay_constant = calculate_decay_constant(peak_level=measurement.peak_level,
-                                              measured_level=measurement.second_level_measurement,
-                                              time_elapsed=measurement.time_elapsed)
+def calculate_constant(measurement: DecayConstantParameters) -> dict:
+    decay_constant = calculate_decay_constant(
+        peak_level=measurement.peak_level,
+        measured_level=measurement.second_level_measurement,
+        time_elapsed=measurement.time_elapsed,
+    )
 
     return {
         "decay_constant": decay_constant,

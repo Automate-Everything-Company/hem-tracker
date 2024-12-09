@@ -4,15 +4,15 @@ from typing import List
 import numpy as np
 import pytz
 
-CET = pytz.timezone('Europe/Berlin')
+CET = pytz.timezone("Europe/Berlin")
 
 
 def convert_to_datetime(date_str):
     now = datetime.now(CET)
     current_year = now.year
     current_month = now.month
-    time_part = ' '.join(date_str.split()[1:])  # Gets "10:05 AM"
-    datetime_obj = datetime.strptime(time_part, '%I:%M %p')
+    time_part = " ".join(date_str.split()[1:])  # Gets "10:05 AM"
+    datetime_obj = datetime.strptime(time_part, "%I:%M %p")
     datetime_obj = datetime_obj.replace(year=current_year, month=current_month)
 
     weekday_str = date_str.split()[0]  # Gets "Monday"
@@ -62,15 +62,18 @@ def generate_refill_times_in_hour_format(refill_times_in_datetime_format, start_
     refill_hours_in_numbers = []
     for refill_time_in_datetime in refill_times_in_datetime_format:
         refill_time_in_hour = float(
-            f"{(refill_time_in_datetime - start_of_week).total_seconds() / 3600:.1f}")  # one decimal float
+            f"{(refill_time_in_datetime - start_of_week).total_seconds() / 3600:.1f}"
+        )  # one decimal float
         refill_hours_in_numbers.append(refill_time_in_hour)
     return refill_hours_in_numbers
 
 
 def get_start_of_the_week():
     start_of_week = CET.localize(
-        datetime.combine(datetime.now(CET).date() - timedelta(days=datetime.now(CET).date().weekday()),
-                         datetime.min.time()))
+        datetime.combine(
+            datetime.now(CET).date() - timedelta(days=datetime.now(CET).date().weekday()), datetime.min.time()
+        )
+    )
     return start_of_week
 
 
@@ -78,4 +81,3 @@ def create_week_hours(hours_in_a_week):
     week_hours = np.arange(0, hours_in_a_week, 0.1).round(2)
     week_hours = week_hours.tolist()
     return week_hours
-

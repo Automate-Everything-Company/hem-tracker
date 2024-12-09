@@ -14,19 +14,18 @@ setup_logging()
 logger = logging.getLogger("hem_tracker")
 
 
-def get_user(db: Session, username: str) -> Optional[User]:
-    user = db.query(User).filter(User.username == username).first()
+def get_user_by_username(db: Session, username: str) -> User | None:
+    user = db.query(User).filter(literal(User.username) == username).first()
     if not user:
         raise HTTPException(status_code=404, detail="No user found.")
     return user
 
 
-def get_user_by_username(db: Session, username: str) -> Optional[User]:
-    return db.query(User).filter(User.username == username).first()
-
-
-def get_user_by_email(db: Session, email: str) -> Optional[User]:
-    return db.query(User).filter(User.email == email).first()
+def get_user_by_email(db: Session, email: str) -> User | None:
+    user = db.query(User).filter(literal(User.email) == email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="No user found.")
+    return user
 
 
 def update_user_by_username(db: Session, user_update: UserUpdate) -> UserBase:
@@ -63,9 +62,9 @@ def update_user_by_username(db: Session, user_update: UserUpdate) -> UserBase:
         logger.error(f"Error occured while updating info for user {user_update.username} because: {str(exc)}")
 
 
-def get_user_measurement(db: Session, user_id: int, measurement_id: Optional[int] = None) -> Type[Measurement] | list[
-    Type[Measurement]]:
-    measurements = db.query(Measurement).filter(Measurement.user_id == user_id).all()
+def get_user_measurement(db: Session, user_id: int, measurement_id: int = None) -> Measurement | list[
+    Measurement]:
+    measurements = db.query(Measurement).filter(literal(Measurement.user_id) == user_id).all()
     if not measurements:
         raise HTTPException(status_code=404, detail="No measurements found")
     if measurement_id is not None:
@@ -104,7 +103,7 @@ def delete_user_measurements(db: Session, user: User) -> None:
 def delete_user_password_tokens(db: Session, user: User) -> None:
     try:
         db.query(PasswordResetToken).filter(
-            PasswordResetToken.user_id == literal(user.id)
+            literal(PasswordResetToken.user_id) == literal(user.id)
         ).delete(synchronize_session=False)
     except Exception as e:
         logger.error(f"Error deleting password tokens for user {user.id}: {str(e)}")

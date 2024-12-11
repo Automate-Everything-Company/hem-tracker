@@ -23,7 +23,6 @@ TEMPLATES_PATH = Path(__file__).parent / "templates"
 
 logger.debug(f"Static path: {STATIC_PATH.exists()}")
 logger.debug(f"Templates path: {TEMPLATES_PATH.exists()}")
-print(f"Templates path: {TEMPLATES_PATH.exists()}")
 
 app = FastAPI(title="Hemophilia Tracker", version="0.0.1")
 
@@ -36,6 +35,7 @@ app.include_router(frontend)
 
 app.mount("/static", StaticFiles(directory=str(STATIC_PATH)), name="static")
 
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # For development, you might use '*'; specify domains in production
@@ -43,3 +43,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.get("/debug/static")
+def check_static():
+    return {
+        "static_dir": str(STATIC_PATH),
+        "exists": STATIC_PATH.exists(),
+        "contents": [str(f) for f in STATIC_PATH.glob("**/*") if f.is_file()]
+    }

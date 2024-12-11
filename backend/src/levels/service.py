@@ -140,11 +140,11 @@ def get_values_for_default_user(db: Session = Depends(get_db)) -> DefaultValues:
 
 
 
-def get_refill_times(db: Session, username: str) -> List[str]:
+def get_refill_times(db: Session, username: str) -> List[str] | None:
     user = get_user_by_username(db, username)
     if not user or not user.weekly_infusions:
-        return []
-    return user.weekly_infusions.split(", ")
+        return
+    return user.weekly_infusions
 
 
 def calculate_decay_constant_from_measurement(measurement:DecayConstantParameters ) -> DecayConstant:

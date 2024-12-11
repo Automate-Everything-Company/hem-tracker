@@ -7,7 +7,9 @@
             const [hour, minute] = time.split(':').map(Number);
             return { day, hour, minute, period };
         };
-
+        if (typeof dates === 'string') {
+        dates = dates.split(',')
+        }
         dates.sort((a, b) => {
             const { day: dayA, hour: hourA, minute: minuteA, period: periodA } = splitTimeString(a);
             const { day: dayB, hour: hourB, minute: minuteB, period: periodB } = splitTimeString(b);

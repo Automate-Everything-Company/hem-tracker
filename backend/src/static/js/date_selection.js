@@ -55,6 +55,9 @@
             return;
         }
         selectedDatesDiv.innerHTML = '';
+        if (typeof dateSelectionDates === 'string') {
+        dateSelectionDates = dateSelectionDates.split(',')
+        }
 
         dateSelectionDates.forEach((date, index) => {
             const dateTag = document.createElement('div');

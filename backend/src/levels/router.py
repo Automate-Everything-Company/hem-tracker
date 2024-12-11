@@ -68,5 +68,4 @@ def calculate_constant(measurement: DecayConstantParameters) -> DecayConstant:
         measured_level=measurement.second_level_measurement,
         time_elapsed=measurement.time_elapsed,
     )
-
-    return decay_constant
+    return DecayConstant(decay_constant=decay_constant)

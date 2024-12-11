@@ -13,13 +13,17 @@ from backend.src.password_reset.router import router as password
 from backend.src.frontend.router import router as frontend
 from backend.src.common.logging_config import setup_logging
 
+setup_logging()
+
+logger = logging.getLogger("hem_tracker")
+
 
 STATIC_PATH = Path(__file__).parent / "static"
 TEMPLATES_PATH = Path(__file__).parent / "templates"
 
-setup_logging()
-
-logger = logging.getLogger("hem_tracker")
+logger.debug(f"Static path: {STATIC_PATH.exists()}")
+logger.debug(f"Templates path: {TEMPLATES_PATH.exists()}")
+print(f"Templates path: {TEMPLATES_PATH.exists()}")
 
 app = FastAPI(title="Hemophilia Tracker", version="0.0.1")
 

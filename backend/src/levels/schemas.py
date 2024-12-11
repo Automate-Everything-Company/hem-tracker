@@ -58,9 +58,11 @@ class DefaultValues(BaseModel):
         ..., gt=0, title="Second measurement level", description="Factor level after the second measurement"
     )
     peak_level: float = Field(..., gt=0, title="Factor peak", description="Factor peak level right after the infusion")
-    weekly_infusions: conlist(item_type=str, min_length=1) = Field(
-        ..., title="Weekly refill times", description="List of refill times in ISO 8601 format."
+    weekly_infusions: str = Field(
+        None,
+        description="List of weekly infusion times. Do not expect to exceed 5, a maximum of 20 defined."
     )
+
 
     class Config:
         populate_by_name = True
@@ -75,6 +77,6 @@ class DecayConstantParameters(BaseModel):
         populate_by_name = True
 
 class DecayConstant(BaseModel):
-    decay_constant: float = Field(..., alias="decayConstant", description="The decay constant can be negative and positive")
+    decay_constant: float = Field(..., description="The decay constant can be negative and positive")
     class Config:
         populate_by_name = True

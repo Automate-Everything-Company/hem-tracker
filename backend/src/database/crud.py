@@ -15,17 +15,11 @@ logger = logging.getLogger("hem_tracker")
 
 
 def get_user_by_username(db: Session, username: str) -> User | None:
-    user = db.query(User).filter(literal(User.username) == username).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="No user found.")
-    return user
+    return db.query(User).filter(literal(User.username) == username).first()
 
 
 def get_user_by_email(db: Session, email: str) -> User | None:
-    user = db.query(User).filter(literal(User.email) == email).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="No user found.")
-    return user
+    return db.query(User).filter(literal(User.email) == email).first()
 
 
 def update_user_by_username(db: Session, user_update: UserUpdate) -> UserBase:
@@ -65,8 +59,6 @@ def update_user_by_username(db: Session, user_update: UserUpdate) -> UserBase:
 def get_user_measurement(db: Session, user_id: int, measurement_id: int = None) -> Measurement | list[
     Measurement]:
     measurements = db.query(Measurement).filter(literal(Measurement.user_id) == user_id).all()
-    if not measurements:
-        raise HTTPException(status_code=404, detail="No measurements found")
     if measurement_id is not None:
         return measurements[measurement_id]
     return measurements

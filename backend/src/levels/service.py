@@ -1,11 +1,12 @@
 from math import exp, isclose
 from typing import Dict, List
 
+import numpy as np
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from .models import FactorCalculationParameters
-from .schemas import DefaultValues, FactorLevelSettings
+from .schemas import DefaultValues, FactorLevelSettings, DecayConstant, DecayConstantParameters
 from .utils import get_start_of_the_week, create_week_hours, convert_to_datetime, generate_refill_hours
 from ..common.utils import calculate_decay_constant, calculate_halving_time
 from ..database.crud import get_user_measurement, get_user_by_username
@@ -109,21 +110,34 @@ def get_values_for_default_user(db: Session = Depends(get_db)) -> DefaultValues:
     measurement_id = 0
 
     user = get_user_by_username(db, username)
+    if not user:
+        raise ValueError(f"Default user not found")
+
     measurement = get_user_measurement(db=db, user_id=user.id, measurement_id=measurement_id)
+    if not measurement:
+        raise ValueError("No measurement found")
+
     weekly_infusions = get_refill_times(db, username)
-    if measurement:
+    if not weekly_infusions:
+        raise ValueError("Weekly infusions not found")
+
+    try:
         decay_constant = calculate_decay_constant(
             peak_level=measurement.peak_level,
             measured_level=measurement.second_level_measurement,
             time_elapsed=measurement.time_elapsed,
         )
         return DefaultValues(
-            decay_constant=decay_constant,
-            peak_level=measurement.peak_level,
-            time_elapsed=measurement.time_elapsed,
-            second_level_measurement=measurement.second_level_measurement,
-            weekly_infusions=weekly_infusions,
-        )
+                decay_constant=decay_constant,
+                peak_level=measurement.peak_level,
+                time_elapsed=measurement.time_elapsed,
+                second_level_measurement=measurement.second_level_measurement,
+                weekly_infusions=weekly_infusions,
+            )
+    except ValueError as e:
+        raise ValueError(f"Error calculating decay constant: {str(e)}")
+
+
 
 
 def get_refill_times(db: Session, username: str) -> List[str]:
@@ -131,3 +145,8 @@ def get_refill_times(db: Session, username: str) -> List[str]:
     if not user or not user.weekly_infusions:
         return []
     return user.weekly_infusions.split(", ")
+
+
+def calculate_decay_constant_from_measurement(measurement:DecayConstantParameters ) -> DecayConstant:
+    decay_constant = float((np.log(measurement.measured_level) - np.log(measurement.peak_level)) / measurement.time_elapsed)
+    return DecayConstant(decay_constant=decay_constant)

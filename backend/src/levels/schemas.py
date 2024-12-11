@@ -15,6 +15,15 @@ class FactorLevelSettings(BaseModel):
 
     class Config:
         populate_by_name = True
+        json_schema_extra = {
+            "example": {
+                "initial_factor_level": 100.00,
+                "decay_constant": -0.0065,
+                "weekly_infusions": "Monday 08:30 AM, Friday 08:30 PM",
+                "current_time": "2024-10-05T14:48:00.000Z"
+            }
+        }
+
 
 
 class FactorLevels(BaseModel):
@@ -36,13 +45,6 @@ class FactorLevels(BaseModel):
     class Config:
         populate_by_name = True
 
-
-# class DefaultValues(BaseModel):
-#     decay_constant: Optional[float] = Field(None)
-#     time_elapsed: Optional[float] = Field(None)
-#     second_level_measurement: Optional[float] = Field(None)
-#     peak_level: Optional[float] = Field(None)
-#     refill_times: Optional[list[str]] = Field(None)
 
 
 class DefaultValues(BaseModel):
@@ -69,5 +71,10 @@ class DecayConstantParameters(BaseModel):
     time_elapsed: Optional[float] = Field(..., alias="timeElapsed")
     second_level_measurement: Optional[float] = Field(..., alias="secondLevelMeasurement")
 
+    class Config:
+        populate_by_name = True
+
+class DecayConstant(BaseModel):
+    decay_constant: float = Field(..., alias="decayConstant", description="The decay constant can be negative and positive")
     class Config:
         populate_by_name = True

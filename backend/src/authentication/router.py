@@ -19,13 +19,7 @@ logger = logging.getLogger("hem_tracker")
 
 router = APIRouter(
     prefix="/auth",
-    tags=["Authentication"],
-    responses={
-        401: {"description": "Unauthorized - Invalid credentials"},
-        404: {"description": "Not Found - User not found"},
-        422: {"description": "Validation Error - Invalid request format"},
-        500: {"description": "Internal Server Error - Authentication service error"},
-    },
+    tags=["Authentication"]
 )
 
 

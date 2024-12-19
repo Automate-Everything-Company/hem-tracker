@@ -22,6 +22,7 @@ logger = logging.getLogger("hem_tracker")
 
 def signup_new_user(db: Session, user_data: UserSignup) -> None:
     try:
+        logger.debug("Validate ")
         domain.validate_as_new_user(db, user_data.username, user_data.email)
 
         formatted_infusions = domain.format_weekly_infusions(

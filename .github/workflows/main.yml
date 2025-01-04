@@ -27,7 +27,7 @@ jobs:
       - name: Purge Cloudflare Cache
         run: |
           curl --request POST \
-            --url https://api.cloudflare.com/client/v4/zones/9eeabfa8339ab9b30eb6b03759a78dfd/purge_cache \
+            --url https://api.cloudflare.com/client/v4/zones/5e1965e9787dc53fc303f38b301eca0d/purge_cache \
             --header 'Content-Type: application/json' \
             --header 'Authorization: Bearer ${{ secrets.CF_PURGE }}' \
             --data '{"purge_everything": true}'

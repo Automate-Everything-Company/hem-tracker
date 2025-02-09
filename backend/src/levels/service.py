@@ -106,7 +106,7 @@ def calculate_levels(week_hours: List[float], params: FactorCalculationParameter
 
 
 def get_values_for_default_user(db: Session = Depends(get_db)) -> DefaultValues:
-    username = "stefanjosan"
+    username = "stefanjosan_altuvoct"
     measurement_id = 0
 
     user = get_user_by_username(db, username)
